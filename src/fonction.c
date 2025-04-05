@@ -155,3 +155,24 @@ void dessinerMap(SDL_Renderer *renderer, int cameraX)
         }
     }
 }
+
+SDL_Texture *chargerTextureBMP(SDL_Renderer *renderer, const char *chemin)
+{
+    SDL_Surface *surface = SDL_LoadBMP(chemin);
+    if (!surface)
+    {
+        printf("Erreur SDL_LoadBMP : %s\n", SDL_GetError());
+        return NULL;
+    }
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+
+    if (!texture)
+    {
+        printf("Erreur SDL_CreateTextureFromSurface : %s\n", SDL_GetError());
+        return NULL;
+    }
+
+    return texture;
+}

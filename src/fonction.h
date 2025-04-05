@@ -35,4 +35,6 @@ void gererEvenements(SDL_bool *continuer, SDL_Rect *carre, SDL_bool *enSaut, flo
 void initialiserMap();
 void dessinerMap(SDL_Renderer *renderer, int cameraX);
 
+SDL_Texture *chargerTextureBMP(SDL_Renderer *renderer, const char *chemin);
+
 #endif

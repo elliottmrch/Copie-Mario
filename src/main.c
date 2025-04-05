@@ -11,6 +11,16 @@ int main(int argc, char *argv[])
     SDL_Window *fenetreJeu = creerFenetre("Mario");
     SDL_Renderer *renderer = creerRenderer(fenetreJeu);
 
+    SDL_Texture *persoTexture = chargerTextureBMP(renderer, "img/perso.bmp");
+    if (!persoTexture)
+    {
+        printf("Échec du chargement de l'image ! Vérifie le chemin\n");
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(fenetreJeu);
+        SDL_Quit();
+        return 1;
+    }
+
     SDL_Rect carre = {100, SOL, 50, 50};
 
     SDL_bool enSaut = SDL_FALSE;
@@ -66,19 +76,23 @@ int main(int argc, char *argv[])
         if (cameraX > MAP_LARGEUR * BLOC_SIZE - LONGUEUR_FENETRE)
             cameraX = MAP_LARGEUR * BLOC_SIZE - LONGUEUR_FENETRE;
 
-        SDL_SetRenderDrawColor(renderer, 129, 212, 250, 255); // ciel
+        SDL_SetRenderDrawColor(renderer, 129, 212, 255, 255); // ciel
         SDL_RenderClear(renderer);
 
         // Décor
         dessinerMap(renderer, cameraX);
 
         // Perso
-        dessinerCarre(renderer, (SDL_Rect){carre.x - cameraX, carre.y, carre.w, carre.h});
+        // dessinerCarre(renderer, (SDL_Rect){carre.x - cameraX, carre.y, carre.w, carre.h});
+        SDL_Rect dst = {carre.x - cameraX, carre.y, carre.w, carre.h};
+        SDL_RenderCopy(renderer, persoTexture, NULL, &dst);
 
         SDL_RenderPresent(renderer);
 
         SDL_Delay(16);
     }
+
+    SDL_DestroyTexture(persoTexture);
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(fenetreJeu);
