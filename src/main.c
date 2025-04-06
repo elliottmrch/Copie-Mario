@@ -35,38 +35,99 @@ int main(int argc, char *argv[])
     {
         gererEvenements(&continuer, &carre, &enSaut, &vitesseSaut, &touches);
 
+        // if (touches.gauche)
+        // {
+        //     carre.x -= VITESSE_DEPLACEMENT;
+        //     if (carre.x < 0)
+        //         carre.x = 0;
+        // }
+        // if (touches.droite)
+        // {
+        //     carre.x += VITESSE_DEPLACEMENT;
+        //     if (carre.x > MAP_LARGEUR * BLOC_SIZE - carre.w)
+        //         carre.x = MAP_LARGEUR * BLOC_SIZE - carre.w;
+        // }
+
+        // Déplacement horizontal avec collision
+        SDL_Rect testCarre = carre;
         if (touches.gauche)
         {
-            carre.x -= VITESSE_DEPLACEMENT;
-            if (carre.x < 0)
-                carre.x = 0;
+            testCarre.x -= VITESSE_DEPLACEMENT;
+            if (!detecterCollision(testCarre))
+                carre.x = testCarre.x;
         }
         if (touches.droite)
         {
-            carre.x += VITESSE_DEPLACEMENT;
-            // if (carre.x > LONGUEUR_FENETRE - carre.w)
-            //     carre.x = LONGUEUR_FENETRE - carre.w;
-            if (carre.x > MAP_LARGEUR * BLOC_SIZE - carre.w)
-                carre.x = MAP_LARGEUR * BLOC_SIZE - carre.w;
+            testCarre.x = carre.x + VITESSE_DEPLACEMENT;
+            if (!detecterCollision(testCarre))
+                carre.x = testCarre.x;
         }
+
+        // if (enSaut)
+        // {
+        //     carre.y += vitesseSaut;
+        //     vitesseSaut += GRAVITE;
+
+        //     if (carre.y >= SOL)
+        //     {
+        //         carre.y = SOL;
+        //         enSaut = SDL_FALSE;
+        //         vitesseSaut = 0;
+        //     }
+        // }
+        // else if (touches.saut)
+        // {
+        //     enSaut = SDL_TRUE;
+        //     vitesseSaut = FORCE_SAUT;
+        //     touches.saut = SDL_FALSE;
+        // }
 
         if (enSaut)
         {
             carre.y += vitesseSaut;
             vitesseSaut += GRAVITE;
-
-            if (carre.y >= SOL)
+        
+            // Vérifier collision vers le bas
+            SDL_Rect testBas = carre;
+            testBas.y += 1; // Petit déplacement vers le bas pour détection
+            
+            if (detecterCollision(testBas))
             {
-                carre.y = SOL;
+                // Ajuster la position juste au-dessus du bloc
+                carre.y = ((carre.y + carre.h) / BLOC_SIZE) * BLOC_SIZE - carre.h;
                 enSaut = SDL_FALSE;
                 vitesseSaut = 0;
             }
+            
+            // Vérifier collision vers le haut
+            SDL_Rect testHaut = carre;
+            testHaut.y -= 1; // Petit déplacement vers le haut
+            
+            if (detecterCollision(testHaut) && vitesseSaut < 0)
+            {
+                carre.y = ((carre.y / BLOC_SIZE) + 1) * BLOC_SIZE;
+                vitesseSaut = 0; // Annuler la vitesse ascendante
+            }
         }
-        else if (touches.saut)
+        else
         {
-            enSaut = SDL_TRUE;
-            vitesseSaut = FORCE_SAUT;
-            touches.saut = SDL_FALSE;
+            // Vérifier si on est sur le sol
+            SDL_Rect testSol = carre;
+            testSol.y += 1; // Petit déplacement vers le bas
+            
+            if (!detecterCollision(testSol))
+            {
+                // On n'est plus sur le sol - commencer à tomber
+                enSaut = SDL_TRUE;
+                vitesseSaut = 0;
+            }
+            else if (touches.saut)
+            {
+                // Saut seulement si on est sur le sol
+                enSaut = SDL_TRUE;
+                vitesseSaut = FORCE_SAUT;
+                touches.saut = SDL_FALSE;
+            }
         }
 
         // Mise à jour de la caméra

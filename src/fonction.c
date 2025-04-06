@@ -92,39 +92,42 @@ void initialiserMap()
         for (int j = 0; j < MAP_LARGEUR; j++)
             map[i][j] = 0;
 
-    // Sol
+    // Sol principal (ligne y = 9)
     for (int x = 0; x < MAP_LARGEUR; x++)
-        map[MAP_HAUTEUR - 2][x] = 1;
+        map[MAP_HAUTEUR - 3][x] = 1;
 
-    // Plateformes
-    for (int x = 5; x < 10; x++)
-        map[MAP_HAUTEUR - 3][x] = 2;
-    for (int x = 15; x < 20; x++)
-        map[MAP_HAUTEUR - 5][x] = 2;
-    for (int x = 25; x < 30; x++)
-        map[MAP_HAUTEUR - 7][x] = 2;
-    for (int x = 35; x < 40; x++)
-        map[MAP_HAUTEUR - 9][x] = 2;
-    for (int x = 45; x < 50; x++)
-        map[MAP_HAUTEUR - 11][x] = 2;
-    // Ajoute d'autres platforme originales, tu ne peut pas dépase la hauteur de 12
-    for (int x = 55; x < 60; x++)
-        map[MAP_HAUTEUR - 3][x] = 2;
-    for (int x = 65; x < 70; x++)
-        map[MAP_HAUTEUR - 5][x] = 2;
+    // Escalier montant (gauche → droite)
+    for (int i = 0; i < 5; i++)
+        map[MAP_HAUTEUR - 4 - i][5 + i] = 2;
+
+    // Plateforme flottante horizontale
+    for (int x = 20; x < 28; x++)
+        map[MAP_HAUTEUR - 6][x] = 2;
+
+    // Trou dans le sol (au milieu)
+    for (int x = 35; x <= 37; x++)
+        map[MAP_HAUTEUR - 3][x] = 0;
+
+    // Mur vertical (collision latérale)
+    for (int y = MAP_HAUTEUR - 6; y < MAP_HAUTEUR - 3; y++)
+        map[y][45] = 2;
+
+    // Plafond bas (pour test de saut bloqué)
+    for (int x = 50; x < 54; x++)
+        map[MAP_HAUTEUR - 10][x] = 2;
+
+    // Grotte / Tunnel
+    for (int x = 60; x < 68; x++) {
+        map[MAP_HAUTEUR - 4][x] = 1; // sol
+        map[MAP_HAUTEUR - 5][x] = 0; // vide
+        map[MAP_HAUTEUR - 6][x] = 1; // plafond
+    }
+
+    // Plateforme très haute (besoin d'élan)
     for (int x = 75; x < 80; x++)
-        map[MAP_HAUTEUR - 7][x] = 2;
-    for (int x = 85; x < 90; x++)
         map[MAP_HAUTEUR - 9][x] = 2;
-    for (int x = 95; x < 100; x++)
-        map[MAP_HAUTEUR - 11][x] = 2;
-    // Ajoute d'autres platforme originales, tu ne peut pas dépase la hauteur de 12
-    for (int x = 105; x < 110; x++)
-        map[MAP_HAUTEUR - 3][x] = 2;
-    for (int x = 115; x < 120; x++)
-        map[MAP_HAUTEUR - 5][x] = 2;
-    map[5][198] = 2;
 }
+
 
 void dessinerMap(SDL_Renderer *renderer, int cameraX)
 {
@@ -175,4 +178,25 @@ SDL_Texture *chargerTextureBMP(SDL_Renderer *renderer, const char *chemin)
     }
 
     return texture;
+}
+
+SDL_bool detecterCollision(SDL_Rect joueur)
+{
+    int gauche = joueur.x / BLOC_SIZE;
+    int droite = (joueur.x + joueur.w - 1) / BLOC_SIZE;
+    int haut = joueur.y / BLOC_SIZE;
+    int bas = (joueur.y + joueur.h - 1) / BLOC_SIZE;
+
+    for (int y = haut; y <= bas; y++)
+    {
+        for (int x = gauche; x <= droite; x++)
+        {
+            if (x < 0 || x >= MAP_LARGEUR || y < 0 || y >= MAP_HAUTEUR)
+                continue;
+
+            if (map[y][x] != 0)
+                return SDL_TRUE;
+        }
+    }
+    return SDL_FALSE;
 }

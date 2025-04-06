@@ -8,13 +8,13 @@
 
 #define LONGUEUR_FENETRE 960
 #define LARGEUR_FENETRE 540
-#define SOL 380
+#define SOL 390
 #define GRAVITE 0.5f
-#define FORCE_SAUT -10.0f
+#define FORCE_SAUT -12.0f
 #define VITESSE_DEPLACEMENT 5
 
 #define BLOC_SIZE 50
-#define MAP_LARGEUR 200
+#define MAP_LARGEUR 150
 #define MAP_HAUTEUR 12
 
 extern int map[MAP_HAUTEUR][MAP_LARGEUR];
@@ -36,5 +36,7 @@ void initialiserMap();
 void dessinerMap(SDL_Renderer *renderer, int cameraX);
 
 SDL_Texture *chargerTextureBMP(SDL_Renderer *renderer, const char *chemin);
+
+SDL_bool detecterCollision(SDL_Rect joueur);
 
 #endif
